@@ -37,15 +37,19 @@ function getRandomInt(max) {
 
 function validateMove(mySnake, intendedMove) {
   if (isSelfThere(mySnake, intendedMove)) {
+    console.log('it thinks its there');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextWall(mySnake, intendedMove)) {
+    console.log('it thinks theres a wall');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextSmallSnake(mySnake, intendedMove)) {
+    console.log('it thinks theres a snake');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextBigSnake(mySnake, intendedMove)) {
+    console.log('it thinks theres a snake');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   return intendedMove;
@@ -56,7 +60,7 @@ router.post('/move', function (req, res) {
   const gameState = req.body;
   const mySnake = getMySnake(gameState);
   mySnake.gameState = gameState;
-  console.log({gameState});
+  // console.log({gameState});
 
   const intendedMove = findFood(mySnake, req.body);
 
@@ -147,7 +151,7 @@ function isNextWall(mySnake, intendedMove) {
   const destCoord = nextCoordinate(mySnake, intendedMove);
   const { height, width } = mySnake.gameState;
   const [destX, destY] = destCoord;
-  if (destX === 0 || destY === 0) {
+  if (destX < 0 || destY < 0) {
     return true;
   }
   if (height === destY || width === destX) {
@@ -158,27 +162,22 @@ function isNextWall(mySnake, intendedMove) {
 function nextCoordinate(mySnake, intendedMove) {
   const body = mySnake.coords;
   const head = body[0];
-  console.log({head});
   let destCoord = [];
   switch (intendedMove) {
     case LEFT:
       destCoord = [(head[0] - 1), head[1]];
-      console.log({destCoord});
       return destCoord;
       break;
     case RIGHT:
       destCoord = [(head[0] + 1), head[1]];
-      console.log({destCoord});
       return destCoord;
       break;
     case UP:
       destCoord = [head[0], (head[1] - 1)];
-      console.log({destCoord});
       return destCoord;
       break;
     case DOWN:
       destCoord = [head[0], (head[1] + 1)];
-      console.log({destCoord});
       return destCoord;
       break;
 
