@@ -37,19 +37,18 @@ function getRandomInt(max) {
 
 function validateMove(mySnake, intendedMove) {
   if (isSelfThere(mySnake, intendedMove)) {
-    console.log('it thinks its there');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextWall(mySnake, intendedMove)) {
-    console.log('it thinks theres a wall');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextSmallSnake(mySnake, intendedMove)) {
-    console.log('it thinks theres a snake');
     return intendedMove;
   }
   if (isNextBigSnake(mySnake, intendedMove)) {
-    console.log('it thinks theres a snake');
+    return validateMove(mySnake, randomMove(intendedMove));
+  }
+  if (isNextDeadSnake(mySnake, intendedMove)) {
     return validateMove(mySnake, randomMove(intendedMove));
   }
   return intendedMove;
@@ -148,12 +147,12 @@ function isSelfThere(mySnake, intendedMove) {
 }
 
 
-function isNotColide(body, destCoord, intendedMove) {
+function isNotColide(snake, destCoord, intendedMove) {
   let nextIsBody = false;
   const [destX, destY] = destCoord;
   switch (intendedMove) {
     case LEFT:
-      body.forEach(part => {
+      snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -162,7 +161,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case RIGHT:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -171,7 +170,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case UP:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -181,7 +180,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case DOWN:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -240,16 +239,19 @@ function isNextSmallSnake(mySnake, intendedMove) {
   let collide = false;
   let big = false;
   const ownSize = mySnake.coords.length;
+  let collideHead = false
   theSnakes.forEach(snake => {
+
     if (!isNotColide(snake.coords,destCoord, intendedMove)) {
       const snakeSize = snake.coords.length;
       big = ownSize < snakeSize;
+      collideHead = !isNotColide([snake.coords[0]],destCoord, intendedMove)
       collide = true;
     }
     
   });
 
-  return (!big && collide);
+  return (!big && collide && collideHead);
 }
 
 function isNextBigSnake(mySnake, intendedMove) {
@@ -264,10 +266,20 @@ function isNextBigSnake(mySnake, intendedMove) {
       big = ownSize < snakeSize;
       collide = true;
     }
-    
   });
+  return collide;
+}
 
-  return (big && collide);
+function isNextDeadSnake(mySnake, intendedMove) {
+  const destCoord = nextCoordinate(mySnake, intendedMove);
+  const theDeadSnakes = mySnake.gameState.dead_snakes;
+  let collide = false;
+  theDeadSnakes.forEach(snake => {
+    if (!isNotColide(snake.coords,destCoord, intendedMove)) {
+      collide = true;
+    }
+  });
+  return collide;
 }
 
 module.exports = router
