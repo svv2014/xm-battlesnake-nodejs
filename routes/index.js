@@ -9,7 +9,6 @@ const DOWN = 'down';
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
   // NOTE: Do something here to start the game
-  console.log(req.body)
   // Response data
   var data = {
     color: "#ff00ee",
@@ -27,8 +26,9 @@ let moves = [LEFT, UP, DOWN, RIGHT];
 function randomMove(exclude) {
   let move = moves[getRandomInt(4)];
   if (move === exclude) {
-    randomMove(exclude);
+    return randomMove(exclude);
   }
+  return move;
 }
 
 function getRandomInt(max) {
@@ -48,17 +48,15 @@ function validateMove(mySnake, intendedMove) {
   if (isNextBigSnake(mySnake, intendedMove)) {
     return validateMove(mySnake, randomMove(intendedMove));
   }
-  console.log("move found: ", intendedMove);
   return intendedMove;
 }
 
 // Handle POST request to '/move'
 router.post('/move', function (req, res) {
-  console.log(req.body);
   const gameState = req.body;
   const mySnake = getMySnake(gameState);
-  console.log('Snake coordinates: ' + JSON.stringify(mySnake.coords));
   mySnake.gameState = gameState;
+  console.log({gameState});
 
   const intendedMove = findFood(mySnake, req.body);
 
@@ -98,18 +96,16 @@ function findFood(mySnake, gameState) {
 }
 
 function isSelfThere(mySnake, intendedMove) {
-  let moveAllowed = true;
+  let nextIsBody = false;
   const body = mySnake.coords;
-  let destCoord = nextCoordinate(mySnake, intendedMove);
-  console.log('destCoord: ', destCoord);
+  const destCoord = nextCoordinate(mySnake, intendedMove);
   const [destX, destY] = destCoord;
   switch (intendedMove) {
     case LEFT:
-
       body.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
-          moveAllowed = false;
+          nextIsBody = true;
         }
       });
       break;
@@ -118,7 +114,7 @@ function isSelfThere(mySnake, intendedMove) {
       body.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
-          moveAllowed = false;
+          nextIsBody = true;
         }
       });
       break;
@@ -126,9 +122,8 @@ function isSelfThere(mySnake, intendedMove) {
 
       body.forEach(part => {
         const [partX, partY] = part;
-        console.log("isSelfThere: ",{partX, partY} );
         if (destX === partX && destY === partY) {
-          moveAllowed = false;
+          nextIsBody = true;
         }
 
       });
@@ -138,23 +133,21 @@ function isSelfThere(mySnake, intendedMove) {
       body.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
-          moveAllowed = false;
+          nextIsBody = true;
         }
       });
       break;
     default:
       break;
   }
-  console.log("isSelfThere: ",{moveAllowed, intendedMove} );
-  return moveAllowed;
+  return nextIsBody;
 }
 
 function isNextWall(mySnake, intendedMove) {
   const destCoord = nextCoordinate(mySnake, intendedMove);
-  console.log('isNextWall: destCoord: ', destCoord);
   const { height, width } = mySnake.gameState;
   const [destX, destY] = destCoord;
-  if (destX < 0 || destY < 0) {
+  if (destX === 0 || destY === 0) {
     return true;
   }
   if (height === destY || width === destX) {
@@ -165,19 +158,28 @@ function isNextWall(mySnake, intendedMove) {
 function nextCoordinate(mySnake, intendedMove) {
   const body = mySnake.coords;
   const head = body[0];
-  console.log('SNAKE bod + head: ', { body, head });
+  console.log({head});
+  let destCoord = [];
   switch (intendedMove) {
     case LEFT:
-      return [(head[0] - 1), head[1]];
+      destCoord = [(head[0] - 1), head[1]];
+      console.log({destCoord});
+      return destCoord;
       break;
     case RIGHT:
-      return [(head[0] + 1), head[1]];
+      destCoord = [(head[0] + 1), head[1]];
+      console.log({destCoord});
+      return destCoord;
       break;
     case UP:
-      return [head[0], (head[1] + 1)];
+      destCoord = [head[0], (head[1] - 1)];
+      console.log({destCoord});
+      return destCoord;
       break;
     case DOWN:
-      return [head[0], (head[1] - 1)];
+      destCoord = [head[0], (head[1] + 1)];
+      console.log({destCoord});
+      return destCoord;
       break;
 
     default:
