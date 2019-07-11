@@ -147,12 +147,12 @@ function isSelfThere(mySnake, intendedMove) {
 }
 
 
-function isNotColide(body, destCoord, intendedMove) {
+function isNotColide(snake, destCoord, intendedMove) {
   let nextIsBody = false;
   const [destX, destY] = destCoord;
   switch (intendedMove) {
     case LEFT:
-      body.forEach(part => {
+      snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -161,7 +161,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case RIGHT:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -170,7 +170,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case UP:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -180,7 +180,7 @@ function isNotColide(body, destCoord, intendedMove) {
       break;
     case DOWN:
 
-      body.forEach(part => {
+        snake.forEach(part => {
         const [partX, partY] = part;
         if (destX === partX && destY === partY) {
           nextIsBody = true;
@@ -239,16 +239,19 @@ function isNextSmallSnake(mySnake, intendedMove) {
   let collide = false;
   let big = false;
   const ownSize = mySnake.coords.length;
+  let collideHead = false
   theSnakes.forEach(snake => {
+
     if (!isNotColide(snake.coords,destCoord, intendedMove)) {
       const snakeSize = snake.coords.length;
       big = ownSize < snakeSize;
+      collideHead = !isNotColide([snake.coords[0]],destCoord, intendedMove)
       collide = true;
     }
     
   });
 
-  return (!big && collide);
+  return (!big && collide && collideHead);
 }
 
 function isNextBigSnake(mySnake, intendedMove) {
@@ -264,7 +267,7 @@ function isNextBigSnake(mySnake, intendedMove) {
       collide = true;
     }
   });
-  return (big && collide);
+  return collide;
 }
 
 function isNextDeadSnake(mySnake, intendedMove) {
