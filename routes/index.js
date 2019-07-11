@@ -37,19 +37,18 @@ function getRandomInt(max) {
 
 function validateMove(mySnake, intendedMove) {
   if (isSelfThere(mySnake, intendedMove)) {
-    console.log('it thinks its there');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextWall(mySnake, intendedMove)) {
-    console.log('it thinks theres a wall');
     return validateMove(mySnake, randomMove(intendedMove));
   }
   if (isNextSmallSnake(mySnake, intendedMove)) {
-    console.log('it thinks theres a snake');
     return intendedMove;
   }
   if (isNextBigSnake(mySnake, intendedMove)) {
-    console.log('it thinks theres a snake');
+    return validateMove(mySnake, randomMove(intendedMove));
+  }
+  if (isNextDeadSnake(mySnake, intendedMove)) {
     return validateMove(mySnake, randomMove(intendedMove));
   }
   return intendedMove;
@@ -264,10 +263,20 @@ function isNextBigSnake(mySnake, intendedMove) {
       big = ownSize < snakeSize;
       collide = true;
     }
-    
   });
-
   return (big && collide);
+}
+
+function isNextDeadSnake(mySnake, intendedMove) {
+  const destCoord = nextCoordinate(mySnake, intendedMove);
+  const theDeadSnakes = mySnake.gameState.dead_snakes;
+  let collide = false;
+  theDeadSnakes.forEach(snake => {
+    if (!isNotColide(snake.coords,destCoord, intendedMove)) {
+      collide = true;
+    }
+  });
+  return collide;
 }
 
 module.exports = router
