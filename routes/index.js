@@ -11,7 +11,7 @@ router.post('/start', function (req, res) {
   // NOTE: Do something here to start the game
   // Response data
   var data = {
-    color: "#ff00ee",
+    color: "#FF901F",
     name: "Solid",
     head_url: "http://www.placecage.com/c/200/200", // optional, but encouraged!
     taunt: "Wakey wakey!", // optional, but encouraged!
